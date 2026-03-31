@@ -1,4 +1,4 @@
-# Manual BrandMeister STFU Mode for ASL3 / DVSwitch
+# Run BrandMeister STFU on ASL3 / DVSwitch (Manual Mode)
 
 Manual BrandMeister STFU mode setup and helper workflow for DVSwitch / ASL3.
 
