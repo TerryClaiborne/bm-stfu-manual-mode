@@ -329,7 +329,7 @@ If you ever want to do it by hand without the helper script, this is the order:
 
 ```bash
 sudo systemctl stop mmdvm_bridge
-sudo asterisk -rx "rpt fun YOUR_NODE *3YOUR_DVSWITCH_NODE
+sudo asterisk -rx "rpt fun YOUR_NODE *3YOUR_DVSWITCH_NODE"
 sudo STFU
 ```
 
