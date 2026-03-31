@@ -403,3 +403,85 @@ This is a personal-use helper workflow for people who want to use BrandMeister t
 
 Use it when you want STFU.
 Stop it when you want to go back to normal mode.
+
+---
+
+## 📻 Example Usage
+
+Start STFU manually:
+
+```bash
+sudo systemctl stop mmdvm_bridge
+sudo asterisk -rx "rpt fun 67040 *31957"
+cd /opt/STFU
+sudo ./STFU
+```
+
+To return to normal DVSwitch operation:
+
+```bash
+sudo pkill STFU
+sudo systemctl start mmdvm_bridge
+```
+
+---
+
+## ⚠️ BrandMeister Behavior (IMPORTANT)
+
+BrandMeister (BM) may not pass audio immediately after a reboot.
+
+In many cases, the node must be keyed once before audio flows.
+
+This is **not a bug in AllTune2 or DVSwitch**, but how BM behaves when initializing a connection.
+
+This is why STFU manual mode exists — it ensures a clean and active connection to BM.
+
+---
+
+## 🔧 Common Problems
+
+### STFU says DVSwitch.ini not found
+
+Fix:
+
+```bash
+cd /opt/STFU
+sudo ln -sf /opt/MMDVM_Bridge/DVSwitch.ini DVSwitch.ini
+```
+
+---
+
+### STFU runs but no audio
+
+- Make sure node 1957 is connected
+- Make sure you switched to STFU mode:
+  
+```bash
+/opt/MMDVM_Bridge/dvswitch.sh mode STFU
+```
+
+---
+
+### Still no audio on BM
+
+This is normal behavior for some BM setups.
+
+Try keying the node once or restarting STFU.
+
+---
+
+### MMDVM_Bridge conflicts with STFU
+
+You must stop it before running STFU:
+
+```bash
+sudo systemctl stop mmdvm_bridge
+```
+
+---
+
+## 👍 Notes
+
+- This setup does NOT modify your normal DVSwitch operation
+- STFU is optional and only used when needed
+- You can safely return to normal mode anytime
