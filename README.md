@@ -1,6 +1,5 @@
 # Manual BrandMeister STFU Mode for ASL3 / DVSwitch
 
-
 Manual BrandMeister STFU mode setup and helper workflow for DVSwitch / ASL3.
 
 Author: Terry Claiborne  
@@ -19,12 +18,12 @@ This is for people who:
 - already have **ASL3**, **Analog_Bridge**, **MMDVM_Bridge**, and **DVSwitch** working
 - want to test or use **BrandMeister through STFU**
 - do **not** want to replace their normal AllTune2 / MMDVM_Bridge setup
-- want a simple helper script so they do not have to type command after command every time
+- want a simpler repeatable workflow instead of typing command after command every time
 
 This guide keeps STFU **manual only**.
 
-It does **not** auto-start STFU.
-It does **not** change AllTune2.
+It does **not** auto-start STFU.  
+It does **not** change AllTune2.  
 It does **not** replace TGIF, YSF, EchoLink, or AllStar.
 
 ## What manual STFU mode does
@@ -34,13 +33,13 @@ When you start manual STFU mode, it:
 1. Stops `mmdvm_bridge`
 2. Connects your main node to your local DVSwitch node
 3. Switches DVSwitch to `STFU` mode
-4. Starts the real `STFU` program in the background
+4. Starts the real `STFU` program
 5. Tunes BrandMeister to the talkgroup you choose
 
 When you stop manual STFU mode, it:
 
 1. Stops STFU
-2. Disconnects your local DVSwitch node
+2. Disconnects your local DVSwitch node if desired
 3. Starts `mmdvm_bridge` again
 
 That gives you a clean way to test or use BM through STFU, then go back to normal mode.
@@ -52,7 +51,7 @@ That gives you a clean way to test or use BM through STFU, then go back to norma
 - Do **not** run STFU and `mmdvm_bridge` for BrandMeister at the same time.
 - STFU is a **manual mode** in this guide, not a replacement for your normal system.
 - Your local DVSwitch node still needs to be connected when using STFU.
-- STFU expects to find a file named `DVSwitch.ini` in its working folder.
+- STFU expects to find a file named `DVSwitch.ini` in `/opt/STFU`.
 - Your real BrandMeister password will be stored in the `[STFU]` section of `DVSwitch.ini`.
 
 ---
@@ -75,7 +74,7 @@ You should already have these working:
 - Analog_Bridge
 - MMDVM_Bridge
 - DVSwitch
-- A local DVSwitch node on your system
+- a local DVSwitch node on your system
 
 Example node numbers used in this guide:
 
@@ -195,249 +194,110 @@ You should see it pointing to:
 
 ---
 
-# Part 4 - Install the helper script
-
-This repository includes a helper script named `bm-stfu.sh`.
-
-Put it here:
-
-```text
-/usr/local/bin/bm-stfu.sh
-```
-
-Make it executable:
-
-```bash
-sudo chmod +x /usr/local/bin/bm-stfu.sh
-```
-
-Open it and edit the two node numbers if needed:
-
-```bash
-sudo nano /usr/local/bin/bm-stfu.sh
-```
-
-These are the two lines to adjust:
-
-```bash
-MAIN_NODE="67040"
-DVSWITCH_NODE="1957"
-```
-
-If your system uses different node numbers, change them.
-
----
-
-# Part 5 - Manual STFU mode usage
+# Part 4 - Manual STFU mode usage
 
 ## Start BM through STFU
 
-```bash
-bm-stfu.sh start 3220008
-```
-
-This will:
-
-- stop `mmdvm_bridge`
-- connect main node `67040` to local DVSwitch node `1957`
-- switch DVSwitch to STFU mode
-- start STFU in the background
-- tune BM to TG `3220008`
-
-## Change BM talkgroups while STFU is already running
-
-```bash
-bm-stfu.sh tune 91
-```
-
-More examples:
-
-```bash
-bm-stfu.sh tune 3100
-bm-stfu.sh tune 93
-bm-stfu.sh tune 3220008
-```
-
-## Check status
-
-```bash
-bm-stfu.sh status
-```
-
-This tells you whether STFU is running and whether `mmdvm_bridge` is active.
-
-## Stop STFU mode and return to normal operation
-
-```bash
-bm-stfu.sh stop
-```
-
-This will:
-
-- stop STFU
-- disconnect the local DVSwitch node
-- start `mmdvm_bridge` again
-
----
-
-# Part 6 - Do you need more than one terminal?
-
-No.
-
-The helper script starts STFU in the background, so your terminal returns to a prompt.
-
-That means you can use the **same terminal** to run:
-
-```bash
-bm-stfu.sh start 3220008
-bm-stfu.sh tune 91
-bm-stfu.sh status
-bm-stfu.sh stop
-```
-
-You only need a second terminal if you want to watch logs or run other commands at the same time.
-
----
-
-# Part 7 - Full quick start and stop examples
-
-## Start manual BM STFU mode
-
-```bash
-bm-stfu.sh start 3220008
-```
-
-## Change BM talkgroup later
-
-```bash
-bm-stfu.sh tune 91
-```
-
-## Return to normal mode
-
-```bash
-bm-stfu.sh stop
-```
-
----
-
-# Part 8 - Example manual fallback commands
-
-If you ever want to do it by hand without the helper script, this is the order:
-
-## Start by hand
+Use this exact order:
 
 ```bash
 sudo systemctl stop mmdvm_bridge
+<<<<<<< HEAD
 sudo asterisk -rx "rpt fun YOUR_NODE *3YOUR_DVSWITCH_NODE"
+=======
+sudo asterisk -rx "rpt fun YOUR_MAIN_NODE *3YOUR_DVSWITCH_NODE"
+/opt/MMDVM_Bridge/dvswitch.sh mode STFU
+>>>>>>> 2c5019d (Refine README usage and command paths)
 sudo STFU
 ```
 
-Then in another terminal if needed:
+Replace:
+
+- `YOUR_MAIN_NODE` with your main node number
+- `YOUR_DVSWITCH_NODE` with your local DVSwitch node number
+
+Example using this guide's node numbers:
+
+```bash
+sudo systemctl stop mmdvm_bridge
+sudo asterisk -rx "rpt fun 67040 *31957"
+/opt/MMDVM_Bridge/dvswitch.sh mode STFU
+sudo STFU
+```
+
+If STFU starts correctly, you should see it connect to the BrandMeister server.
+
+## Tune BM to a talkgroup
+
+Open another terminal if needed and tune to the talkgroup you want:
 
 ```bash
 /opt/MMDVM_Bridge/dvswitch.sh tune 3220008
 ```
 
-## Stop by hand
+Replace `3220008` with any BM talkgroup you want.
 
-In the STFU terminal, stop it with `Ctrl+C`, then run:
+## Stop STFU mode and return to normal operation
+
+In the STFU terminal, stop it with `Ctrl+C`.
+
+Then run:
 
 ```bash
 sudo systemctl start mmdvm_bridge
 ```
 
----
-
-# Part 9 - What was wrong before
-
-These are the common things that stop STFU from working:
-
-1. Only having `/opt/Analog_Bridge/stfu.sh`
-   - that helper is **not** the real STFU engine
-
-2. Not installing the real STFU binary
-   - example correct install path:
-     ```text
-     /usr/local/bin/STFU
-     ```
-
-3. STFU not finding `DVSwitch.ini`
-   - fixed by creating this link:
-     ```bash
-     cd /opt/STFU
-     sudo ln -sf /opt/MMDVM_Bridge/DVSwitch.ini DVSwitch.ini
-     ```
-
-4. Wrong node numbers in the helper script
-
-5. Wrong `[STFU]` values in `DVSwitch.ini`
-   - especially password, DMR ID, and StartTG
-
-6. Trying to run STFU and `mmdvm_bridge` for BM at the same time
+If you also want to disconnect your local DVSwitch node, do that with your normal command for your system.
 
 ---
 
-# Part 10 - Security reminder
+# Part 5 - Do you need more than one terminal?
 
-If you ever exposed your real BrandMeister password in terminal output, logs, screenshots, or chat, change it in BrandMeister SelfCare afterward.
+Usually yes, for the cleanest workflow.
 
----
+- Terminal 1: run `sudo STFU` and leave it running
+- Terminal 2: run `dvswitch.sh tune ...` commands as needed
 
-# Part 11 - Recommended repository contents
-
-A useful GitHub repository for this should include:
-
-- this README
-- `bm-stfu.sh`
-- a short cheat sheet section
-- a note that this is **manual mode** and not integrated into AllTune2
+You can stop STFU later with `Ctrl+C` in Terminal 1.
 
 ---
 
-# Part 12 - Final note
+# Part 6 - Full quick start and stop examples
 
-This is a personal-use helper workflow for people who want to use BrandMeister through STFU without replacing their normal DVSwitch / MMDVM_Bridge setup.
-
-Use it when you want STFU.
-Stop it when you want to go back to normal mode.
-
----
-
-## 📻 Example Usage
-
-Start STFU manually:
+## Start manual BM STFU mode
 
 ```bash
 sudo systemctl stop mmdvm_bridge
-sudo asterisk -rx "rpt fun YOUR_NODE *3YOUR_DVSWITCH_NODE
+sudo asterisk -rx "rpt fun 67040 *31957"
+/opt/MMDVM_Bridge/dvswitch.sh mode STFU
 sudo STFU
 ```
 
-To return to normal DVSwitch operation:
+Then, in another terminal:
 
 ```bash
-sudo pkill STFU
+/opt/MMDVM_Bridge/dvswitch.sh tune 3220008
+```
+
+## Return to normal mode
+
+In the STFU terminal:
+
+```text
+Ctrl+C
+```
+
+Then run:
+
+```bash
 sudo systemctl start mmdvm_bridge
 ```
 
 ---
 
-## ⚠️ BrandMeister Behavior (IMPORTANT)
+# Part 7 - Common problems
 
-BrandMeister (BM) may not pass audio immediately after a reboot.
-
-In many cases, the node must be keyed once before audio flows.
-
-This is **not a bug in AllTune2 or DVSwitch**, but how BM behaves when initializing a connection.
-
-This is why STFU manual mode exists — it ensures a clean and active connection to BM.
-
----
-
-## 🔧 Common Problems
-
-### STFU says DVSwitch.ini not found
+## STFU says `DVSwitch.ini` not found
 
 Fix:
 
@@ -446,28 +306,30 @@ cd /opt/STFU
 sudo ln -sf /opt/MMDVM_Bridge/DVSwitch.ini DVSwitch.ini
 ```
 
----
+## `sudo ./STFU` says command not found
 
-### STFU runs but no audio
+The installed binary is normally here:
 
-- Make sure node 1957 is connected
+```text
+/usr/local/bin/STFU
+```
+
+Run it like this:
+
+```bash
+sudo STFU
+```
+
+## STFU runs but no audio
+
+- Make sure your local DVSwitch node is connected
 - Make sure you switched to STFU mode:
-  
+
 ```bash
 /opt/MMDVM_Bridge/dvswitch.sh mode STFU
 ```
 
----
-
-### Still no audio on BM
-
-This is normal behavior for some BM setups.
-
-Try keying the node once or restarting STFU.
-
----
-
-### MMDVM_Bridge conflicts with STFU
+## MMDVM_Bridge conflicts with STFU
 
 You must stop it before running STFU:
 
@@ -475,10 +337,36 @@ You must stop it before running STFU:
 sudo systemctl stop mmdvm_bridge
 ```
 
+## Still no audio on BM
+
+Try:
+
+- checking your `[STFU]` settings in `DVSwitch.ini`
+- checking your node numbers in the connect command
+- tuning the talkgroup again
+- restarting STFU cleanly
+
 ---
 
-## 👍 Notes
+# Part 8 - BrandMeister behavior (important)
 
-- This setup does NOT modify your normal DVSwitch operation
-- STFU is optional and only used when needed
-- You can safely return to normal mode anytime
+BrandMeister can behave differently than TGIF.
+
+On some systems, BM through normal MMDVM_Bridge flow may not pass audio immediately after a reboot until the node is keyed once.
+
+This is why STFU manual mode can be useful - it gives you a cleaner direct BM path without replacing your normal system.
+
+---
+
+# Part 9 - Security reminder
+
+If you ever exposed your real BrandMeister password in terminal output, logs, screenshots, or chat, change it in BrandMeister SelfCare afterward.
+
+---
+
+# Part 10 - Final note
+
+This is a personal-use helper workflow for people who want to use BrandMeister through STFU without replacing their normal DVSwitch / MMDVM_Bridge setup.
+
+Use it when you want STFU.  
+Stop it when you want to go back to normal mode.
