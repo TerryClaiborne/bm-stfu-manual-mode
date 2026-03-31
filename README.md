@@ -202,12 +202,8 @@ Use this exact order:
 
 ```bash
 sudo systemctl stop mmdvm_bridge
-<<<<<<< HEAD
-sudo asterisk -rx "rpt fun YOUR_NODE *3YOUR_DVSWITCH_NODE"
-=======
 sudo asterisk -rx "rpt fun YOUR_MAIN_NODE *3YOUR_DVSWITCH_NODE"
 /opt/MMDVM_Bridge/dvswitch.sh mode STFU
->>>>>>> 2c5019d (Refine README usage and command paths)
 sudo STFU
 ```
 
