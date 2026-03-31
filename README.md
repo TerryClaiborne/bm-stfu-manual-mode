@@ -14,21 +14,21 @@ Once installed, this is all you need:
 ### Start STFU on your talkgroup
 
 ```bash
-bm-stfu.sh start 3220008
+sudo bm-stfu.sh start 3220008
 ```
 
 ### Change talkgroups
 
 ```bash
-bm-stfu.sh tune 3100
-bm-stfu.sh tune 93
-bm-stfu.sh tune 3220008
+sudo bm-stfu.sh tune 3100
+sudo bm-stfu.sh tune 93
+sudo bm-stfu.sh tune 3220008
 ```
 
 ### Stop STFU and return to normal
 
 ```bash
-bm-stfu.sh stop
+sudo bm-stfu.sh stop
 ```
 
 That’s it.
@@ -289,7 +289,7 @@ If your system uses different node numbers, change them.
 ## Start BM through STFU
 
 ```bash
-bm-stfu.sh start 3220008
+sudo bm-stfu.sh start 3220008
 ```
 
 This will:
@@ -303,21 +303,21 @@ This will:
 ## Change BM talkgroups while STFU is already running
 
 ```bash
-bm-stfu.sh tune 91
+sudo bm-stfu.sh tune 91
 ```
 
 More examples:
 
 ```bash
-bm-stfu.sh tune 3100
-bm-stfu.sh tune 93
-bm-stfu.sh tune 3220008
+sudo bm-stfu.sh tune 3100
+sudo bm-stfu.sh tune 93
+sudo bm-stfu.sh tune 3220008
 ```
 
 ## Check status
 
 ```bash
-bm-stfu.sh status
+sudo bm-stfu.sh status
 ```
 
 This tells you whether STFU is running and whether `mmdvm_bridge` is active.
@@ -325,7 +325,7 @@ This tells you whether STFU is running and whether `mmdvm_bridge` is active.
 ## Stop STFU mode and return to normal operation
 
 ```bash
-bm-stfu.sh stop
+sudo bm-stfu.sh stop
 ```
 
 This will:
@@ -345,10 +345,10 @@ The helper script starts STFU in the background, so your terminal returns to a p
 That means you can use the **same terminal** to run:
 
 ```bash
-bm-stfu.sh start 3220008
-bm-stfu.sh tune 91
-bm-stfu.sh status
-bm-stfu.sh stop
+sudo bm-stfu.sh start 3220008
+sudo bm-stfu.sh tune 91
+sudo bm-stfu.sh status
+sudo bm-stfu.sh stop
 ```
 
 You only need a second terminal if you want to watch logs or run other commands at the same time.
@@ -360,19 +360,19 @@ You only need a second terminal if you want to watch logs or run other commands 
 ## Start manual BM STFU mode
 
 ```bash
-bm-stfu.sh start 3220008
+sudo bm-stfu.sh start 3220008
 ```
 
 ## Change BM talkgroup later
 
 ```bash
-bm-stfu.sh tune 91
+sudo bm-stfu.sh tune 91
 ```
 
 ## Return to normal mode
 
 ```bash
-bm-stfu.sh stop
+sudo bm-stfu.sh stop
 ```
 
 ---
