@@ -1,9 +1,11 @@
 # Run BrandMeister STFU on ASL3 / DVSwitch (Manual Mode)
 
-Manual BrandMeister STFU mode setup and helper workflow for DVSwitch / ASL3.
+Manual STFU setup and helper workflow for DVSwitch / ASL3.
 
 Author: Terry Claiborne  
 Contact: kc3kmv@yahoo.com
+
+---
 
 ## Quick Use (What most people want)
 
@@ -36,34 +38,50 @@ That’s it.
 ## What this actually does (simple version)
 
 - Stops MMDVM_Bridge
-- Connects your node to DVSwitch
+- Connects your node to your local DVSwitch node
+- Switches DVSwitch to STFU mode
 - Starts STFU
-- Tunes to the talkgroup you choose
+- Tunes BrandMeister to the talkgroup you choose
 
 When you stop it, everything goes back to normal.
 
-## Quick Install
+---
+
+## Install
 
 ```bash
 git clone https://github.com/TerryClaiborne/bm-stfu-manual-mode.git && cd bm-stfu-manual-mode && chmod +x install_bm_stfu_manual_mode.sh && sudo ./install_bm_stfu_manual_mode.sh
 ```
 
-Note: The helper script `bm-stfu.sh` must also be created or installed before using the helper-script commands shown below.
+---
 
-This guide shows how to install and use **STFU** in **manual mode** on an ASL3 / DVSwitch system.
+## Who this is for
 
-This is for people who:
+This is for you if:
 
-- already have **ASL3**, **Analog_Bridge**, **MMDVM_Bridge**, and **DVSwitch** working
-- want to test or use **BrandMeister through STFU**
-- do **not** want to replace their normal AllTune2 / MMDVM_Bridge setup
-- want a simple helper script so they do not have to type command after command every time
+- you already have ASL3 / DVSwitch working
+- you want to use BrandMeister through STFU
+- you don’t want to mess up your normal setup (AllTune2, TGIF, YSF, EchoLink, or AllStar)
+- you just want simple commands that work without typing a bunch of stuff every time
 
-This guide keeps STFU **manual only**.
+This runs STFU in **manual mode only**.
 
-It does **not** auto-start STFU.  
-It does **not** change AllTune2.  
-It does **not** replace TGIF, YSF, EchoLink, or AllStar.
+You start it when you need it, and stop it when you're done.
+
+---
+
+## Why this exists
+
+BrandMeister can be picky.
+
+Sometimes after a reboot, audio won’t pass until the node is keyed first.
+
+Most people never notice because they already keyed their node.
+
+This gives you a clean way to:
+- bring BM up properly
+- switch talkgroups easily
+- and go back to normal without messing anything up
 
 ## What manual STFU mode does
 
