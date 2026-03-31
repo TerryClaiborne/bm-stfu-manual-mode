@@ -1,5 +1,18 @@
 # Manual BrandMeister STFU Mode for ASL3 / DVSwitch
 
+# BM STFU Manual Mode
+
+Manual BrandMeister STFU mode setup and helper workflow for DVSwitch / ASL3.
+
+Author: Terry Claiborne  
+Contact: kc3kmv@yahoo.com
+
+## Quick Install
+
+```bash
+git clone https://github.com/TerryClaiborne/bm-stfu-manual-mode.git && cd bm-stfu-manual-mode && chmod +x install_bm_stfu_manual_mode.sh && sudo ./install_bm_stfu_manual_mode.sh
+```
+
 This guide shows how to install and use **STFU** in **manual mode** on an ASL3 / DVSwitch system.
 
 This is for people who:
