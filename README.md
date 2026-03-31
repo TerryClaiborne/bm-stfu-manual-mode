@@ -5,6 +5,43 @@ Manual BrandMeister STFU mode setup and helper workflow for DVSwitch / ASL3.
 Author: Terry Claiborne  
 Contact: kc3kmv@yahoo.com
 
+## Quick Use (What most people want)
+
+Once installed, this is all you need:
+
+### Start STFU on your talkgroup
+
+```bash
+bm-stfu.sh start 3220008
+```
+
+### Change talkgroups
+
+```bash
+bm-stfu.sh tune 3100
+bm-stfu.sh tune 93
+bm-stfu.sh tune 3220008
+```
+
+### Stop STFU and return to normal
+
+```bash
+bm-stfu.sh stop
+```
+
+That’s it.
+
+---
+
+## What this actually does (simple version)
+
+- Stops MMDVM_Bridge
+- Connects your node to DVSwitch
+- Starts STFU
+- Tunes to the talkgroup you choose
+
+When you stop it, everything goes back to normal.
+
 ## Quick Install
 
 ```bash
