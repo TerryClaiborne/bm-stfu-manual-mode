@@ -222,7 +222,7 @@ These are the two lines to adjust:
 
 ```bash
 MAIN_NODE="67040"
-DVSWITCH_NODE="1957"
+DVSWITCH_NODE=""
 ```
 
 If your system uses different node numbers, change them.
@@ -240,7 +240,7 @@ bm-stfu.sh start 3220008
 This will:
 
 - stop `mmdvm_bridge`
-- connect main node `67040` to local DVSwitch node `1957`
+- connect main node (YOUR_NODE) to local DVSwitch node (YOUR_DVSWITCH_NODE)
 - switch DVSwitch to STFU mode
 - start STFU in the background
 - tune BM to TG `3220008`
