@@ -410,9 +410,8 @@ Start STFU manually:
 
 ```bash
 sudo systemctl stop mmdvm_bridge
-sudo asterisk -rx "rpt fun 67040 *31957"
-cd /opt/STFU
-sudo ./STFU
+sudo asterisk -rx "rpt fun YOUR_NODE *3YOUR_DVSWITCH_NODE
+sudo STFU
 ```
 
 To return to normal DVSwitch operation:
