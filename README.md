@@ -7,24 +7,46 @@ Contact: kc3kmv@yahoo.com
 
 ## What this repo includes
 
-This repo now includes two parts:
+This repo contains two parts:
 
 1. **Base manual STFU mode**
    - helper script: `bm-stfu.sh`
-   - main installer: `install_bm_stfu_manual_mode.sh`
+   - base installer: `install_bm_stfu_manual_mode.sh`
 
-2. **Optional STFU web GUI add-on**
-   - browser-based control panel for:
-     - Start
-     - Change TG
-     - Stop
-     - Status
-     - Saved Favorites
-   - requires the base manual STFU install to already be working first
+2. **Optional STFU Web UI add-on**
+   - web installer: `install_stfu_web.sh`
+   - web files are stored in the repo under `web-ui/`
+
+The Web UI is an add-on for the base STFU project.  
+It does **not** work by itself.
 
 ---
 
-## Quick Start (Most Important)
+## Install order
+
+### Step 1 — Install the base manual STFU mode first
+
+```bash
+git clone https://github.com/TerryClaiborne/bm-stfu-manual-mode.git && cd bm-stfu-manual-mode && chmod +x install_bm_stfu_manual_mode.sh && sudo ./install_bm_stfu_manual_mode.sh
+```
+
+### Step 2 — Install the optional Web UI add-on after the base install is working
+
+From inside the same repo directory:
+
+```bash
+chmod +x install_stfu_web.sh && sudo ./install_stfu_web.sh
+```
+
+### Important
+
+The Web UI installer checks for the base install first.
+
+If `/usr/local/bin/bm-stfu.sh` is missing, the Web UI installer stops and tells you to install the base project first.
+
+---
+
+## Quick Start (Base Manual Mode)
 
 After install, this is all you need:
 
@@ -39,32 +61,9 @@ That’s it.
 
 ---
 
-## Install Choices
-
-### Option 1 — Base manual mode only
-
-Install the helper script and use STFU from the command line.
-
-### Option 2 — Base manual mode + optional web GUI
-
-Install the base manual mode first, then add the optional web interface.
-
-> The web GUI is an add-on for `bm-stfu.sh`.  
-> It does not work by itself.
-
----
-
-## Install
-
-```bash
-git clone https://github.com/TerryClaiborne/bm-stfu-manual-mode.git && cd bm-stfu-manual-mode && chmod +x install_bm_stfu_manual_mode.sh && sudo ./install_bm_stfu_manual_mode.sh
-```
-
----
-
 ## One-Time Setup (Required)
 
-Edit your settings:
+Edit your live file:
 
 ```bash
 sudo nano /opt/MMDVM_Bridge/DVSwitch.ini
@@ -79,13 +78,13 @@ Set the values that match your system, including:
 
 ### Important note about `StartTG`
 
-If STFU briefly lands on TG91 before switching to the talkgroup you requested, check this setting:
+If STFU briefly lands on TG91 before switching to the talkgroup you requested, set:
 
 ```ini
 StartTG=0
 ```
 
-Using `StartTG=0` avoids an unwanted brief startup hit on TG91 on systems like mine.
+That avoided the brief unwanted startup hit on TG91 on my system.
 
 Then edit:
 
@@ -130,40 +129,20 @@ sudo bm-stfu.sh status
 
 ---
 
-## Optional STFU Web GUI Add-On
+## Optional STFU Web UI Add-On
 
-The STFU web GUI is an optional browser-based front end for `bm-stfu.sh`.
+The STFU Web UI is an optional browser-based front end for `bm-stfu.sh`.
 
-It is meant for users who want:
-- simple Start / Change TG / Stop / Status buttons
-- saved favorites
-- a lightweight web control panel
+It provides:
 
-### Important
-
-You must install and configure the base manual mode first.
-
-The web GUI depends on:
-- `/usr/local/bin/bm-stfu.sh`
-- the STFU base install
-- a sudoers rule allowing the web server user to run `bm-stfu.sh`
-
-It is not a standalone install by itself.
-
----
-
-## STFU Web GUI Features
-
-The web GUI currently supports:
-
-- Start a talkgroup
-- Change talkgroup after STFU is already running
-- Stop STFU
-- Refresh status
-- Save Favorites
-- Load Favorites
-- Delete Favorites
-- Private target support with trailing `#`
+- Start
+- Change TG
+- Stop
+- Refresh Status
+- Save Favorite
+- Load Favorite
+- Delete Favorite
+- private target support with trailing `#`
 
 Example private target:
 
@@ -171,37 +150,61 @@ Example private target:
 3220008#
 ```
 
+### Live Web UI location
+
+On my working system, the live files are installed to:
+
+```text
+/var/www/html/stfu
+```
+
+### Files used by the Web UI
+
+Installed live files:
+
+```text
+/var/www/html/stfu/index.php
+/var/www/html/stfu/favorites.txt
+/var/www/html/stfu/README.txt
+/var/www/html/stfu/sudoers-example.txt
+```
+
+Repo source files:
+
+```text
+web-ui/index.php
+web-ui/favorites.txt
+web-ui/README.md
+web-ui/sudoers-example.txt
+```
+
 ### Favorites
 
-Saved favorites use:
+Saved favorites are stored in:
 
 ```text
 /var/www/html/stfu/favorites.txt
 ```
 
-Favorites include:
+Each favorite includes:
+
 - TG / Private TG
 - Station Name / Label
 - Description
 
 ---
 
-## Web GUI Files
+## Sudoers requirement for the Web UI
 
-Current local web GUI files are:
+The Web UI needs permission for the Apache web user to run the helper script.
 
-```text
-/var/www/html/stfu/index.php
-/var/www/html/stfu/favorites.txt
-```
-
-A typical sudoers example file is:
+A typical installed sudoers file is:
 
 ```text
 /etc/sudoers.d/stfu-web
 ```
 
-Example contents:
+Typical contents:
 
 ```text
 www-data ALL=(ALL) NOPASSWD: /usr/local/bin/bm-stfu.sh
@@ -213,31 +216,14 @@ Validate it with:
 sudo visudo -cf /etc/sudoers.d/stfu-web
 ```
 
----
+### Important
 
-## Web GUI Notes
-
-The web GUI is designed to be simple and light.
-
-Current behavior includes:
-- Start should be used first
-- Change TG is meant for changing talkgroups after STFU is already active
-- the Add Favorite section is meant for adding new favorites
-- loading a saved favorite should fill the control target without forcing you to re-save it
+The Web UI installer does **not** automatically install the sudoers file.  
+It copies the example file and reminds you to review and install it yourself.
 
 ---
 
-## Troubleshooting
-
-### If the web GUI does not work
-
-Check:
-- base manual STFU mode is installed first
-- `bm-stfu.sh` runs correctly from the command line
-- sudoers rule exists and is valid
-- `favorites.txt` exists and is writable by `www-data`
-
-Recommended permissions:
+## Recommended permissions for the live Web UI
 
 ```bash
 sudo chown root:www-data /var/www/html/stfu/index.php
@@ -245,6 +231,29 @@ sudo chmod 644 /var/www/html/stfu/index.php
 sudo chown www-data:www-data /var/www/html/stfu/favorites.txt
 sudo chmod 664 /var/www/html/stfu/favorites.txt
 ```
+
+---
+
+## Web UI notes
+
+- Start should be used first.
+- Change TG is meant for changing talkgroups after STFU is already active.
+- Add Favorite is for adding a new favorite.
+- Load fills the control target for quick use.
+- Favorites are shown in a visible list and use `favorites.txt`.
+
+---
+
+## Troubleshooting
+
+### If the Web UI does not work
+
+Check:
+
+- base manual STFU mode is installed first
+- `bm-stfu.sh` works from the command line
+- sudoers rule exists and is valid
+- `favorites.txt` exists and is writable by `www-data`
 
 ### If the page throws an HTTP 500 error
 
@@ -275,7 +284,7 @@ StartTG=0
 This repo now supports:
 
 - **Base manual STFU mode**
-- **Optional STFU web GUI add-on**
+- **Optional STFU Web UI add-on**
 
-The command-line workflow remains the base install.  
-The web GUI is an optional convenience layer on top of it.
+Install the base project first.  
+Then install the optional Web UI if you want browser-based control.
