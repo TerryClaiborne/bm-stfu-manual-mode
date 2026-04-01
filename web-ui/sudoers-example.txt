@@ -1,0 +1,4 @@
+# /etc/sudoers.d/stfu-web
+# Allow the web server user to run the STFU helper script without a password.
+
+www-data ALL=(ALL) NOPASSWD: /usr/local/bin/bm-stfu.sh
