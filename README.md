@@ -1,4 +1,4 @@
-# Run BrandMeister STFU on ASL3 / DVSwitch (Manual Mode + Optional Web GUI)
+# Run BrandMeister STFU on ASL3 / DVSwitch (Manual Mode + Optional Web UI)
 
 Author: Terry Claiborne  
 Contact: kc3kmv@yahoo.com
@@ -86,17 +86,21 @@ StartTG=0
 
 That avoided the brief unwanted startup hit on TG91 on my system.
 
-Then edit:
+### MAIN_NODE and DVSWITCH_NODE
+
+The base installer will prompt you for these values during install:
+
+```text
+MAIN_NODE
+DVSWITCH_NODE
+```
+
+For a normal new install, you should not need to edit `/usr/local/bin/bm-stfu.sh` by hand.
+
+If you ever need to review or change them later, you can check:
 
 ```bash
 sudo nano /usr/local/bin/bm-stfu.sh
-```
-
-Set:
-
-```bash
-MAIN_NODE="YOUR_NODE"
-DVSWITCH_NODE="YOUR_DVSWITCH_NODE"
 ```
 
 ---
@@ -218,8 +222,9 @@ sudo visudo -cf /etc/sudoers.d/stfu-web
 
 ### Important
 
-The Web UI installer does **not** automatically install the sudoers file.  
-It copies the example file and reminds you to review and install it yourself.
+The Web UI installer now installs and validates the sudoers rule automatically.
+
+It also backs up an existing sudoers file before replacing it.
 
 ---
 
