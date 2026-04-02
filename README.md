@@ -1,11 +1,15 @@
-# Run BrandMeister STFU on ASL3 / DVSwitch (Manual Mode + Optional Web UI)
+# BrandMeister STFU for ASL3 / DVSwitch
 
 Author: Terry Claiborne  
 Contact: kc3kmv@yahoo.com
 
+Manual Mode + Optional Web UI Add-On
+
 ---
 
+
 ## What this repo includes
+
 
 This repo contains two parts:
 
