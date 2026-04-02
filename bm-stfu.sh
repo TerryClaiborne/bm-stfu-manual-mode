@@ -1,9 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-# Edit these two values for your system
-MAIN_NODE="67040"
-DVSWITCH_NODE="1957"
+# These two values are set by install_bm_stfu_manual_mode.sh during install.
+# If you are editing manually, replace them with your real node numbers.
+MAIN_NODE="YOUR_NODE"
+DVSWITCH_NODE="YOUR_DVSWITCH_NODE"
 
 STFU_DIR="/opt/STFU"
 STFU_BIN="/usr/local/bin/STFU"
@@ -28,6 +29,16 @@ ensure_symlink() {
 
 is_stfu_running() {
     [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null
+}
+
+ensure_node_configured() {
+    if [[ ! "$MAIN_NODE" =~ ^[0-9]+$ ]] || [[ ! "$DVSWITCH_NODE" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: MAIN_NODE and DVSWITCH_NODE are not configured."
+        echo "Edit /usr/local/bin/bm-stfu.sh and set these lines:"
+        echo '  MAIN_NODE="YOUR_NODE"'
+        echo '  DVSWITCH_NODE="YOUR_DVSWITCH_NODE"'
+        exit 1
+    fi
 }
 
 connect_dvswitch_node() {
@@ -83,6 +94,7 @@ start_mode() {
         exit 1
     fi
 
+    ensure_node_configured
     require_file "$STFU_BIN"
     require_file "$DVSWITCH_SH"
     require_file "$DVSWITCH_INI"
@@ -132,6 +144,8 @@ tune_mode() {
 }
 
 stop_mode() {
+    ensure_node_configured
+
     echo "Stopping STFU..."
     stop_stfu_process
 
