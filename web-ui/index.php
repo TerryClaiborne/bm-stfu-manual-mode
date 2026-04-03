@@ -562,8 +562,7 @@ function h(string $value): string
                         <button class="btn btn-danger" type="submit" name="post_action" value="stop">Stop</button>
                     </div>
                 </form>
-                <p class="help">Start and Change TG use the target field. A private call target may end with #.</p>
-            </div>
+                <p class="help" style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;"><span>Start and Change TG use the target field. A private call target may end with #.</span><span style="text-align:right;">Press Stop before leaving this page or using AllTune2 to restore normal bridge mode.</span></p>            </div>
         </section>
 
         <section class="card">
