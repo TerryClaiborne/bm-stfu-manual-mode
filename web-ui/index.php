@@ -131,6 +131,16 @@ function write_favorites(string $path, array $favorites): bool
     return @file_put_contents($path, $content, LOCK_EX) !== false;
 }
 
+function find_favorite_index_by_target(array $favorites, string $target): int
+{
+    foreach ($favorites as $index => $favorite) {
+        if (($favorite['target'] ?? '') === $target) {
+            return $index;
+        }
+    }
+    return -1;
+}
+
 function parse_status(array $statusResult): array
 {
     $lines = clean_lines($statusResult['output']);
@@ -158,13 +168,18 @@ function parse_status(array $statusResult): array
 
     $bridge = 'Unknown';
     $bridgeClass = '';
+    $bridgeDisplay = 'Unknown';
     if ($bridgeLine !== '') {
         if (preg_match('/mmdvm_bridge:\s*(\S+)/i', $bridgeLine, $m)) {
             $bridge = ucfirst(strtolower($m[1]));
             if (strcasecmp($m[1], 'active') === 0) {
                 $bridgeClass = 'value-good';
+                $bridgeDisplay = 'Normal DVSwitch / ASL3 mode';
             } elseif (strcasecmp($m[1], 'inactive') === 0) {
                 $bridgeClass = 'value-bad';
+                $bridgeDisplay = 'STFU active mode';
+            } else {
+                $bridgeDisplay = ucfirst(strtolower($m[1]));
             }
         }
     }
@@ -188,6 +203,7 @@ function parse_status(array $statusResult): array
         'mode' => $mode,
         'badge_class' => $badgeClass,
         'bridge' => $bridge,
+        'bridge_display' => $bridgeDisplay,
         'bridge_class' => $bridgeClass,
         'backend' => $statusResult['ok'] ? 'OK' : 'Error',
         'backend_class' => $statusResult['ok'] ? 'value-good' : 'value-bad',
@@ -201,6 +217,35 @@ function message_box(string $message, string $type = 'info'): array
 {
     return ['text' => $message, 'type' => $type];
 }
+
+function sort_favorites(array $favorites, string $sortBy, string $sortDir): array
+{
+    usort($favorites, static function (array $a, array $b) use ($sortBy, $sortDir): int {
+        $aValue = (string)($a[$sortBy] ?? '');
+        $bValue = (string)($b[$sortBy] ?? '');
+
+        if ($sortBy === 'target') {
+            $cmp = strnatcmp($aValue, $bValue);
+        } else {
+            $cmp = strcasecmp($aValue, $bValue);
+        }
+
+        if ($cmp === 0) {
+            $cmp = strnatcmp((string)($a['target'] ?? ''), (string)($b['target'] ?? ''));
+        }
+
+        return $sortDir === 'desc' ? -$cmp : $cmp;
+    });
+
+    return $favorites;
+}
+
+$allowedSorts = ['target', 'label', 'description'];
+$sortBy = (string)($_GET['sort'] ?? 'target');
+if (!in_array($sortBy, $allowedSorts, true)) {
+    $sortBy = 'target';
+}
+$sortDir = strtolower((string)($_GET['dir'] ?? 'asc')) === 'desc' ? 'desc' : 'asc';
 
 $controlTarget = '';
 $favLabel = '';
@@ -219,7 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $favLabel = safe_text($_POST['fav_label'] ?? '', 80);
     $favTarget = safe_target($_POST['fav_target'] ?? '');
     $favDescription = safe_text($_POST['fav_description'] ?? '', 160);
-    $rowIndex = isset($_POST['row_index']) ? (int) $_POST['row_index'] : -1;
+    $favoriteTargetKey = safe_target($_POST['favorite_target_key'] ?? '');
 
     switch ($postAction) {
         case 'start':
@@ -308,11 +353,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
 
         case 'load_favorite':
-            if (!isset($favorites[$rowIndex])) {
+            $favoriteIndex = find_favorite_index_by_target($favorites, $favoriteTargetKey);
+            if ($favoriteIndex < 0) {
                 $detailsMessage = message_box('Load Favorite: Select a valid saved favorite.', 'error');
                 break;
             }
-            $favorite = $favorites[$rowIndex];
+            $favorite = $favorites[$favoriteIndex];
             $controlTarget = $favorite['target'];
             $favLabel = '';
             $favTarget = '';
@@ -325,12 +371,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $detailsMessage = message_box('Favorites file is not writable: ' . FAVORITES_FILE, 'error');
                 break;
             }
-            if (!isset($favorites[$rowIndex])) {
+            $favoriteIndex = find_favorite_index_by_target($favorites, $favoriteTargetKey);
+            if ($favoriteIndex < 0) {
                 $detailsMessage = message_box('Delete Favorite: Select a valid saved favorite.', 'error');
                 break;
             }
-            $removed = $favorites[$rowIndex];
-            array_splice($favorites, $rowIndex, 1);
+            $removed = $favorites[$favoriteIndex];
+            array_splice($favorites, $favoriteIndex, 1);
             if (write_favorites(FAVORITES_FILE, $favorites)) {
                 $favorites = read_favorites(FAVORITES_FILE);
                 $detailsMessage = message_box('Deleted favorite: ' . $removed['label'] . ' (' . $removed['target'] . ').', 'success');
@@ -351,10 +398,26 @@ if ($controlTarget === '' && $parsedStatus['current_target'] !== '') {
 }
 
 $isActive = $parsedStatus['mode'] === 'Active';
+$favoritesSorted = sort_favorites($favorites, $sortBy, $sortDir);
+$selfAction = basename((string)($_SERVER['PHP_SELF'] ?? 'index.php'));
 
 function h(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+
+function sort_indicator(string $column, string $currentSort, string $currentDir): string
+{
+    if ($column !== $currentSort) {
+        return '';
+    }
+    return $currentDir === 'desc' ? ' v' : ' ^';
+}
+
+function sort_link(string $column, string $currentSort, string $currentDir): string
+{
+    $nextDir = ($column === $currentSort && $currentDir === 'asc') ? 'desc' : 'asc';
+    return '?sort=' . rawurlencode($column) . '&dir=' . rawurlencode($nextDir);
 }
 ?>
 <!doctype html>
@@ -459,8 +522,13 @@ function h(string $value): string
         .btn:hover { transform: translateY(-1px); }
         .btn-primary { background: var(--bg-button); border-color: var(--border-button); color: #fff; }
         .btn-primary:hover { background: var(--bg-button-hover); }
-        .btn-danger { background: var(--bg-danger); border-color: #c6281e; color: #ffd0d0; }
-        .btn-danger:hover { background: var(--bg-danger-hover); }
+        .btn-danger {
+            background: #a31610;
+            border-color: #ff6c63;
+            color: #fff4f4;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+        }
+        .btn-danger:hover { background: #bc1d16; }
         .btn-blue { background: #294f90; border-color: #6ea8ff; color: #fff; }
         .btn-blue:hover { background: #3260ac; }
         .btn:disabled {
@@ -483,6 +551,14 @@ function h(string $value): string
         thead th {
             background: linear-gradient(180deg, #6a2f8d 0%, #4a2662 100%); color: #f1d3ff; text-align: left;
             font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 5px 8px;
+        }
+        thead th a {
+            color: inherit;
+            text-decoration: none;
+            display: inline-block;
+        }
+        thead th a:hover {
+            text-decoration: underline;
         }
         tbody td { padding: 4px 8px; border-top: 1px solid #3a234a; font-size: 0.82rem; line-height: 1.15; vertical-align: middle; }
         tbody tr:nth-child(odd) { background: rgba(255,255,255,0.01); }
@@ -533,8 +609,8 @@ function h(string $value): string
                         <?php endif; ?>
                     </div>
                     <div class="status-item">
-                        <span class="status-label">Bridge</span>
-                        <p class="status-value <?= h($parsedStatus['bridge_class']) ?>"><?= h($parsedStatus['bridge']) ?></p>
+                        <span class="status-label">MMDVM_Bridge</span>
+                        <p class="status-value <?= h($parsedStatus['bridge_class']) ?>"><?= h($parsedStatus['bridge_display'] !== '' ? $parsedStatus['bridge_display'] : $parsedStatus['bridge']) ?></p>
                     </div>
                     <div class="status-item">
                         <span class="status-label">Backend</span>
@@ -547,7 +623,7 @@ function h(string $value): string
         <section class="card">
             <div class="card-header">Control</div>
             <div class="card-body">
-                <form method="post" class="grid">
+                <form method="post" action="<?= h($selfAction) ?>" class="grid">
                     <input type="hidden" name="fav_label" value="">
                     <input type="hidden" name="fav_target" value="">
                     <input type="hidden" name="fav_description" value="">
@@ -562,13 +638,14 @@ function h(string $value): string
                         <button class="btn btn-danger" type="submit" name="post_action" value="stop">Stop</button>
                     </div>
                 </form>
-                <p class="help" style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;"><span>Start and Change TG use the target field. A private call target may end with #.</span><span style="text-align:right;">Press Stop before leaving this page or using AllTune2 to restore normal bridge mode.</span></p>            </div>
+                <p class="help" style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;"><span>Start and Change TG use the target field. A private call target may end with #.</span><span style="text-align:right;">Press Stop before leaving this page or using AllTune2 to restore normal bridge mode.</span></p>
+            </div>
         </section>
 
         <section class="card">
             <div class="card-header">Add Favorite</div>
             <div class="card-body">
-                <form method="post" class="add-grid" autocomplete="off">
+                <form method="post" action="<?= h($selfAction) ?>" class="add-grid" autocomplete="off">
                     <input type="hidden" name="control_target" value="<?= h($controlTarget) ?>">
                     <div>
                         <label class="label" for="fav_target">TG / Private TG</label>
@@ -601,34 +678,34 @@ function h(string $value): string
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width:16%;">Target</th>
-                                    <th style="width:22%;">Station Name</th>
-                                    <th>Description</th>
+                                    <th style="width:16%;"><a href="<?= h(sort_link('target', $sortBy, $sortDir)) ?>">Target<?= h(sort_indicator('target', $sortBy, $sortDir)) ?></a></th>
+                                    <th style="width:22%;"><a href="<?= h(sort_link('label', $sortBy, $sortDir)) ?>">Station Name<?= h(sort_indicator('label', $sortBy, $sortDir)) ?></a></th>
+                                    <th><a href="<?= h(sort_link('description', $sortBy, $sortDir)) ?>">Description<?= h(sort_indicator('description', $sortBy, $sortDir)) ?></a></th>
                                     <th style="width:125px; text-align:right;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            <?php foreach ($favorites as $index => $favorite): ?>
+                            <?php foreach ($favoritesSorted as $favorite): ?>
                                 <tr>
                                     <td><?= h($favorite['target']) ?></td>
                                     <td><?= h($favorite['label']) ?></td>
                                     <td><?= h($favorite['description']) ?></td>
                                     <td>
                                         <div class="row-actions">
-                                            <form method="post">
+                                            <form method="post" action="<?= h($selfAction) ?>">
                                                 <input type="hidden" name="control_target" value="<?= h($controlTarget) ?>">
                                                 <input type="hidden" name="fav_label" value="">
                                                 <input type="hidden" name="fav_target" value="">
                                                 <input type="hidden" name="fav_description" value="">
-                                                <input type="hidden" name="row_index" value="<?= $index ?>">
+                                                <input type="hidden" name="favorite_target_key" value="<?= h($favorite['target']) ?>">
                                                 <button class="btn btn-blue" type="submit" name="post_action" value="load_favorite">Load</button>
                                             </form>
-                                            <form method="post" onsubmit="return confirm('Delete this favorite?');">
+                                            <form method="post" action="<?= h($selfAction) ?>" onsubmit="return confirm('Delete this favorite?');">
                                                 <input type="hidden" name="control_target" value="<?= h($controlTarget) ?>">
                                                 <input type="hidden" name="fav_label" value="">
                                                 <input type="hidden" name="fav_target" value="">
                                                 <input type="hidden" name="fav_description" value="">
-                                                <input type="hidden" name="row_index" value="<?= $index ?>">
+                                                <input type="hidden" name="favorite_target_key" value="<?= h($favorite['target']) ?>">
                                                 <button class="btn btn-danger" type="submit" name="post_action" value="delete_favorite">Delete</button>
                                             </form>
                                         </div>
