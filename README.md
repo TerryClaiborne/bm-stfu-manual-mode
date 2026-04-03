@@ -514,8 +514,13 @@ sudo chmod 664 /var/www/html/stfu/favorites.txt
 - Favorites are shown in a visible list and use `favorites.txt`.
 
 ---
+## Warning
 
+**Warning:** If you leave STFU active and then switch to AllTune2 or other DVSwitch tools, normal MMDVM_Bridge operation may not work until STFU is stopped and normal bridge mode is restored. Always press **Stop** before leaving the STFU Web UI or before using AllTune2.
+
+---
 ## Troubleshooting
+
 
 ### If the Web UI does not work
 
