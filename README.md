@@ -26,13 +26,13 @@ It does **not** work by itself.
 
 ## Install Order
 
-### Step 1 — Install the base manual STFU mode first
+### Step 1 - Install the base manual STFU mode first
 
 ```bash
 git clone https://github.com/TerryClaiborne/bm-stfu-manual-mode.git && cd bm-stfu-manual-mode && chmod +x install_bm_stfu_manual_mode.sh && sudo ./install_bm_stfu_manual_mode.sh
 ```
 
-### Step 2 — Install the optional Web UI add-on after the base install is working
+### Step 2 - Install the optional Web UI add-on after the base install is working
 
 From inside the same repo directory:
 
@@ -59,9 +59,28 @@ sudo bm-stfu.sh stop
 sudo bm-stfu.sh status
 ```
 
-That’s it.
+That's it.
 
 ---
+
+---
+
+## Log file
+
+The manual BM/STFU helper writes to one visible log file:
+
+    /var/log/bm-stfu-manual-mode.log
+
+The helper also sets STFU's log directory so the STFU binary does not fall back to:
+
+    /var/log/STFU.log
+
+Older installs may have used:
+
+    /var/log/bm-stfu.log
+    /var/log/STFU.log
+
+Those older files are no longer used by this helper after updating. They can be removed manually after confirming STFU is stopped.
 
 ## One-Time Setup (Required)
 

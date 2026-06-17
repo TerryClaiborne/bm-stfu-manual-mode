@@ -99,6 +99,16 @@ Saved Favorites are shown below in a visible list with **Load** and **Delete** b
 
 ---
 
+---
+
+## Log file
+
+The web UI uses the base bm-stfu.sh helper.
+
+The manual BM/STFU helper log is:
+
+    /var/log/bm-stfu-manual-mode.log
+
 ## Sudoers Requirement
 
 The web UI needs permission for the Apache web user to run the helper script.

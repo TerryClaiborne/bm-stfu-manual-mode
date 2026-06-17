@@ -12,7 +12,9 @@ DVSWITCH_SH="/opt/MMDVM_Bridge/dvswitch.sh"
 DVSWITCH_INI="/opt/MMDVM_Bridge/DVSwitch.ini"
 
 PID_FILE="/var/run/bm-stfu.pid"
-LOG_FILE="/var/log/bm-stfu.log"
+LOG_FILE="/var/log/bm-stfu-manual-mode.log"
+STFU_LOG_DIR="/var/log/bm-stfu-manual-mode"
+STFU_COMPAT_LOG="$STFU_LOG_DIR/STFU.log"
 
 require_file() {
     local file="$1"
@@ -56,11 +58,13 @@ start_stfu_process() {
     fi
 
     ensure_symlink
+    mkdir -p "$STFU_LOG_DIR"
     touch "$LOG_FILE"
+    ln -sfn "$LOG_FILE" "$STFU_COMPAT_LOG"
 
     (
         cd "$STFU_DIR"
-        nohup "$STFU_BIN" >>"$LOG_FILE" 2>&1 &
+        STFU_LOG="$STFU_LOG_DIR" nohup "$STFU_BIN" >/dev/null 2>&1 &
         echo $! > "$PID_FILE"
     )
 
@@ -165,6 +169,7 @@ status_mode() {
         echo "STFU is not running."
     fi
 
+    echo "log_file: $LOG_FILE"
     echo -n "mmdvm_bridge: "
     systemctl is-active mmdvm_bridge || true
 }
